@@ -1,0 +1,92 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: paperless-ngx
+      component: redis
+  template:
+    metadata:
+      labels:
+        app: paperless-ngx
+        component: redis
+    spec:
+      securityContext:
+        runAsUser: 26997
+        runAsGroup: 26997
+        fsGroup: 26997
+      containers:
+      - name: redis
+        image: docker.io/library/redis:6.2.7-alpine3.15
+        args:
+        - "--appendonly"
+        - "yes"
+        ports:
+        - name: redis
+          containerPort: 6379
+          protocol: TCP
+        volumeMounts:
+        - name: data
+          mountPath: /data
+        securityContext:
+          allowPrivilegeEscalation: false
+          privileged: false
+          readOnlyRootFilesystem: true
+          runAsGroup: 26997
+          runAsNonRoot: true
+          runAsUser: 26997
+          capabilities:
+            drop:
+            - ALL
+        startupProbe:
+          exec:
+            command:
+            - "redis-cli"
+            - "-h"
+            - "127.0.0.1"
+            - "ping"
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          timeoutSeconds: 1
+          failureThreshold: 30
+          successThreshold: 1
+        readinessProbe:
+          exec:
+            command:
+            - "redis-cli"
+            - "-h"
+            - "127.0.0.1"
+            - "ping"
+          initialDelaySeconds: 0
+          periodSeconds: 10
+          timeoutSeconds: 1
+          failureThreshold: 3
+          successThreshold: 1
+        livenessProbe:
+          exec:
+            command:
+            - "redis-cli"
+            - "-h"
+            - "127.0.0.1"
+            - "ping"
+          initialDelaySeconds: 0
+          periodSeconds: 10
+          timeoutSeconds: 1
+          failureThreshold: 3
+          successThreshold: 1
+        resources:
+          requests:
+            cpu: "250m"
+            memory: "256Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: paperless-ngx-redis-0

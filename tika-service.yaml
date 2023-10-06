@@ -1,0 +1,13 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: tika
+spec:
+  selector:
+    app: paperless-ng
+    component: tika
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+      protocol: TCP

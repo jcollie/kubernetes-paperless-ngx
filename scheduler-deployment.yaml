@@ -1,0 +1,85 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: scheduler
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: paperless-ngx
+      component: scheduler
+  template:
+    metadata:
+      labels:
+        app: paperless-ngx
+        component: scheduler
+    spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      containers:
+        - name: scheduler
+          image: ghcr.io/paperless-ngx/paperless-ngx:1.17.4
+            - secretRef:
+                name: paperless-ngx
+          command:
+            - "/usr/local/bin/celery"
+            - "--app"
+            - "paperless"
+            - "beat"
+            - "--loglevel"
+            - "INFO"
+          workingDir: /usr/src/paperless/src
+          volumeMounts:
+            - name: logs
+              mountPath: /logs
+            - name: data
+              mountPath: /usr/src/paperless/data
+            - name: media
+              mountPath: /usr/src/paperless/media
+            - name: export
+              mountPath: /usr/src/paperless/export
+            - name: consume
+              mountPath: /usr/src/paperless/consume
+            - name: tmp
+              mountPath: /tmp
+            - name: temp
+              mountPath: /tmp/paperless
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "512Mi"
+            limits:
+              cpu: "4000m"
+              memory: "64Gi"
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsUser: 1000
+            runAsGroup: 1000
+            runAsNonRoot: true
+            privileged: false
+            capabilities:
+              drop:
+                - ALL
+      volumes:
+        - name: tmp
+          emptyDir: {}
+        - name: logs
+          emptyDir: {}
+        - name: data
+          persistentVolumeClaim:
+            claimName: paperless-ngx-data-0
+        - name: media
+          persistentVolumeClaim:
+            claimName: paperless-ngx-media-0
+        - name: export
+          persistentVolumeClaim:
+            claimName: paperless-ngx-export-0
+        - name: temp
+          persistentVolumeClaim:
+            claimName: paperless-ngx-temp-0
+        - name: consume
+          persistentVolumeClaim:
+            claimName: paperless-ngx-consume-0

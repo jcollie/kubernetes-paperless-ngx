@@ -1,0 +1,52 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: paperless-ngx
+secretGenerator:
+  - name: paperless-ngx
+    literals:
+      - TZ="America/Chicago"
+      - PAPERLESS_ALLOWED_HOSTS="paperless-ngx.example.com"
+      - PAPERLESS_CONSUMER_DELETE_DUPLICATES="YES"
+      - PAPERLESS_CONSUMER_IGNORE_PATTERNS=[".sftpgo-upload.*"]
+      - PAPERLESS_CONSUMER_POLLING="30"
+      - PAPERLESS_CONSUMER_RECURSIVE="0"
+      - PAPERLESS_CONSUMER_SUBDIRS_AS_TAGS="0"
+      - PAPERLESS_CORS_ALLOWED_HOSTS="https://paperless-ngx.example.com"
+      - PAPERLESS_DATE_ORDER="MDY"
+      - PAPERLESS_DBHOST="postgresql.example.com"
+      - PAPERLESS_DBNAME="paperlessngx"
+      - PAPERLESS_DBPASS="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+      - PAPERLESS_DBPORT="5432"
+      - PAPERLESS_DBSSLMODE="require"
+      - PAPERLESS_DBUSER="paperlessngx"
+      - PAPERLESS_LOGGING_DIR="/logs"
+      - PAPERLESS_OCR_LANGUAGE="eng"
+      - PAPERLESS_OCR_LANGUAGES="eng"
+      - PAPERLESS_REDIS="redis://redis"
+      - PAPERLESS_SECRET_KEY="yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy"
+      - PAPERLESS_TASK_WORKERS="1"
+      - PAPERLESS_THREADS_PER_WORKER="4"
+      - PAPERLESS_TIKA_ENABLED="YES"
+      - PAPERLESS_TIKA_ENDPOINT="http://tika"
+      - PAPERLESS_TIKA_GOTENBERG_ENDPOINT="http://gotenberg"
+      - PAPERLESS_TIME_ZONE="America/Chicago"
+      - PAPERLESS_URL="https://paperless-ngx.example.com"
+      - PAPERLESS_WORKER_TIMEOUT="3600"
+      - USERMAP_UID="1000"
+      - USERMAP_GID="1000"
+resources:
+  - consumer-deployment.yaml
+  - gotenberg-deployment.yaml
+  - gotenberg-service.yaml
+  - ingressroute.yaml
+  - namespace.yaml
+  - pvc.yaml
+  - redis-deployment.yaml
+  - redis-service.yaml
+  - scheduler-deployment.yaml
+  - task-queue-deployment.yaml
+  - tika-deployment.yaml
+  - tika-service.yaml
+  - traefik-middleware.yaml
+  - webserver-deployment.yaml
+  - webserver-service.yaml

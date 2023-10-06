@@ -1,0 +1,13 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: webserver
+spec:
+  selector:
+    app: paperless-ngx
+    component: webserver
+  ports:
+    - name: http
+      port: 8000
+      targetPort: http
+      protocol: TCP
